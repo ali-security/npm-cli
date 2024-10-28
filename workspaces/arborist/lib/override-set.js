@@ -92,7 +92,7 @@ class OverrideSet {
         return rule
       }
 
-      let spec = npa(`${edge.name}@${edge.spec}`)
+      let spec = npa(`${edge.name}@${edge.rawSpec}`)
       if (spec.type === 'alias') {
         spec = spec.subSpec
       }
