@@ -342,7 +342,24 @@ class Node {
   }
 
   get overridden () {
-    return !!(this.overrides && this.overrides.value && this.overrides.name === this.name)
+    if (!this.overrides) {
+      return false
+    }
+    if (!this.overrides.value) {
+      return false
+    }
+    if (this.overrides.name !== this.name) {
+      return false
+    }
+    for (const edge of this.edgesIn) {
+      if (this.overrides.isEqual(edge.overrides)) {
+        if (!edge.overrides.isEqual(edge.from.overrides)) {
+          return true
+        }
+      }
+    }
+
+    return false
   }
 
   get package () {
