@@ -837,9 +837,6 @@ class Node {
       target.root = root
     }
 
-    if (!this.overrides && this.parent && this.parent.overrides) {
-      this.overrides = this.parent.overrides.getNodeRule(this)
-    }
     // tree should always be valid upon root setter completion.
     treeCheck(this)
     if (this !== root) {
