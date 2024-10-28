@@ -179,6 +179,9 @@ class Edge {
 
   get spec () {
     if (this.overrides?.value && this.overrides.value !== '*' && this.overrides.name === this.#name) {
+      if (this.overrides === this.#from.overrides) {
+        return this.#spec
+      }
       if (this.overrides.value.startsWith('$')) {
         const ref = this.overrides.value.slice(1)
         // we may be a virtual root, if we are we want to resolve reference overrides
@@ -238,6 +241,12 @@ class Edge {
         this.#error = 'PEER LOCAL'
       } else if (!this.satisfiedBy(this.#to)) {
         this.#error = 'INVALID'
+      } else if (this.overrides && this.#to.edgesOut.size) {
+        if (!this.#to.findSpecificOverrideSet(this.overrides, this.#to.overrides)) {
+          // In principle any kind of difference here has some potential for problem,
+          // but we'll say it's invalid only if the override sets are plainly conflicting.
+          this.#error = 'INVALID'
+        }
       } else {
         this.#error = 'OK'
       }
@@ -260,10 +269,6 @@ class Edge {
         oldOverrideSet = this.overrides
         this.overrides = newOverrideSet
       }
-//      if (this.overrides !== this.#from.overrides) {
-//        console.log(this.#from.overrides)
-//        console.log(this.overrides)
-//      }
     } else {
       delete this.overrides
     }
