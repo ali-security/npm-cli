@@ -250,8 +250,20 @@ class Edge {
 
   reload (hard = false) {
     this.#explanation = null
+    let needToUpdateOverrideSet = false
+    let newOverrideSet
+    let oldOverrideSet
     if (this.#from.overrides) {
-      this.overrides = this.#from.overrides.getEdgeRule(this)
+      newOverrideSet = this.#from.overrides.getEdgeRule(this)
+      if (newOverrideSet && !newOverrideSet.isEqual(this.overrides)) {
+        needToUpdateOverrideSet = true
+        oldOverrideSet = this.overrides
+        this.overrides = newOverrideSet
+      }
+//      if (this.overrides !== this.#from.overrides) {
+//        console.log(this.#from.overrides)
+//        console.log(this.overrides)
+//      }
     } else {
       delete this.overrides
     }
@@ -267,6 +279,10 @@ class Edge {
       }
     } else if (hard) {
       this.#error = null
+    }
+    else if (needToUpdateOverrideSet) {
+      this.#to.updateNodeOverrideSetDueToEdgeRemoval(oldOverrideSet)
+      this.#to.updateNodeOverrideSet(newOverrideSet)
     }
   }
 
