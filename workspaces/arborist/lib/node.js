@@ -1397,7 +1397,7 @@ class Node {
     }
     let newOverrideSet
     for (const edge of this.edgesIn) {
-      if (newOverrideSet) {
+      if (newOverrideSet && edge.overrides) {
         newOverrideSet = this.findSpecificOverrideSet(edge.overrides, newOverrideSet)
       } else {
         newOverrideSet = edge.overrides
@@ -1424,12 +1424,12 @@ class Node {
   // both, one of its dependencies might need to be different depending on the edge leading to it.
   // However, this might cause a lot of duplication, because the conflict in the dependencies might never actually happen.
   updateNodeOverrideSet (otherOverrideSet) {
-    if (!this.overrides) {
+    if (!otherOverrideSet) {
       // Assuming there are any overrides at all, the overrides field is never undefined for any node at the end state of the tree.
       // So if the new edge's overrides is undefined it will be updated later. So we can wait with updating the node's overrides field.
-      if (!otherOverrideSet) {
-        return false
-      }
+      return false
+    }
+    if (!this.overrides) {
       this.overrides = otherOverrideSet
       this.recalculateOutEdgesOverrides()
       return true
