@@ -1004,10 +1004,19 @@ class Node {
       return false
     }
 
-    // XXX need to check for two root nodes?
-    if (node.overrides !== this.overrides) {
-      return false
+    if (this.edgesOut.size) {
+      // XXX need to check for two root nodes?
+      if (node.overrides) {
+        if (!node.overrides.isEqual(this.overrides)) {
+          return false
+        }
+      } else {
+        if (this.overrides) {
+          return false
+        }
+      }
     }
+
     ignorePeers = new Set(ignorePeers)
 
     // gather up all the deps of this node and that are only depended
