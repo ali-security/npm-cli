@@ -351,6 +351,10 @@ class Node {
     if (this.overrides.name !== this.name) {
       return false
     }
+
+    // The overrides rule is for a package with this name, but some override rules only apply to specific
+    // versions. To make sure this package was actually overridden, we check whether any edge going in
+    // had the rule applied to it, in which case its overrides set is different than its source node.
     for (const edge of this.edgesIn) {
       if (this.overrides.isEqual(edge.overrides)) {
         if (!edge.overrides.isEqual(edge.from.overrides)) {
@@ -1018,6 +1022,8 @@ class Node {
       return false
     }
 
+    // If this node has no dependencies, then it's irrelevant to check the override
+    // rules of the replacement node.
     if (this.edgesOut.size) {
       // XXX need to check for two root nodes?
       if (node.overrides) {
@@ -1368,7 +1374,7 @@ class Node {
     for (const [, edge] of this.edgesOut) {
       edge.reload(true)
       if (edge.to) {
-        edge.to.updateNodeOverrideSet(edge.overrides)
+        edge.to.updateOverridesEdgeInAdded(edge.overrides)
       }
     }
   }
@@ -1387,7 +1393,7 @@ class Node {
     console.log('Conflicting override sets')
   }
 
-  updateNodeOverrideSetDueToEdgeRemoval (otherOverrideSet) {
+  updateOverridesEdgeInRemoved (otherOverrideSet) {
     // If this edge's overrides isn't equal to this node's overrides, then removing it won't change newOverrideSet later.
     if (!this.overrides || !this.overrides.isEqual(otherOverrideSet)) {
       return false
@@ -1420,7 +1426,7 @@ class Node {
   // The strictly correct logic is not to allow two edges with different overrides to point to the same node, because even if this node can satisfy
   // both, one of its dependencies might need to be different depending on the edge leading to it.
   // However, this might cause a lot of duplication, because the conflict in the dependencies might never actually happen.
-  updateNodeOverrideSet (otherOverrideSet) {
+  updateOverridesEdgeInAdded (otherOverrideSet) {
     if (!otherOverrideSet) {
       // Assuming there are any overrides at all, the overrides field is never undefined for any node at the end state of the tree.
       // So if the new edge's overrides is undefined it will be updated later. So we can wait with updating the node's overrides field.
@@ -1449,14 +1455,14 @@ class Node {
   deleteEdgeIn (edge) {
     this.edgesIn.delete(edge)
     if (edge.overrides) {
-      this.updateNodeOverrideSetDueToEdgeRemoval(edge.overrides)
+      this.updateOverridesEdgeInRemoved(edge.overrides)
     }
   }
 
   addEdgeIn (edge) {
     // We need to handle the case where the new edge in has an overrides field which is different from the current value.
     if (!this.overrides || !this.overrides.isEqual(edge.overrides)) {
-      this.updateNodeOverrideSet(edge.overrides)
+      this.updateOverridesEdgeInAdded(edge.overrides)
     }
 
     this.edgesIn.add(edge)

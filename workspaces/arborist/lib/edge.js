@@ -179,9 +179,11 @@ class Edge {
 
   get spec () {
     if (this.overrides?.value && this.overrides.value !== '*' && this.overrides.name === this.#name) {
+      // If this edge has the same overrides field as the source, then we're not applying an override for this edge.
       if (this.overrides === this.#from.overrides) {
         return this.#spec
       }
+
       if (this.overrides.value.startsWith('$')) {
         const ref = this.overrides.value.slice(1)
         // we may be a virtual root, if we are we want to resolve reference overrides
@@ -241,12 +243,11 @@ class Edge {
         this.#error = 'PEER LOCAL'
       } else if (!this.satisfiedBy(this.#to)) {
         this.#error = 'INVALID'
-      } else if (this.overrides && this.#to.edgesOut.size) {
-        if (!this.#to.findSpecificOverrideSet(this.overrides, this.#to.overrides)) {
-          // In principle any kind of difference here has some potential for problem,
-          // but we'll say it's invalid only if the override sets are plainly conflicting.
-          this.#error = 'INVALID'
-        }
+      } else if (this.overrides && this.#to.edgesOut.size && !this.#to.findSpecificOverrideSet(this.overrides, this.#to.overrides)) {
+        // Any inconsistency between the edge's override set and the target's override set is potentially problematic.
+        // But we only say the edge is in error if the override sets are plainly conflicting.
+        // Note that if the target doesn't have any dependencies of their own, then this inconsistency is irrelevant.
+        this.#error = 'INVALID'
       } else {
         this.#error = 'OK'
       }
@@ -259,12 +260,15 @@ class Edge {
 
   reload (hard = false) {
     this.#explanation = null
+
     let needToUpdateOverrideSet = false
     let newOverrideSet
     let oldOverrideSet
     if (this.#from.overrides) {
       newOverrideSet = this.#from.overrides.getEdgeRule(this)
       if (newOverrideSet && !newOverrideSet.isEqual(this.overrides)) {
+        // If there's a new different override set we need to propagate it to the nodes.
+        // If we're deleting the override set then there's no point propagating it right now since it will be filled with another value later.
         needToUpdateOverrideSet = true
         oldOverrideSet = this.overrides
         this.overrides = newOverrideSet
@@ -286,8 +290,9 @@ class Edge {
       this.#error = null
     }
     else if (needToUpdateOverrideSet) {
-      this.#to.updateNodeOverrideSetDueToEdgeRemoval(oldOverrideSet)
-      this.#to.updateNodeOverrideSet(newOverrideSet)
+      // Propagate the new override set to the target node.
+      this.#to.updateOverridesEdgeInRemoved(oldOverrideSet)
+      this.#to.updateOverridesEdgeInAdded(newOverrideSet)
     }
   }
 

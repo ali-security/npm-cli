@@ -92,6 +92,7 @@ class OverrideSet {
         return rule
       }
 
+      // We need to use the rawSpec here, because the spec has the overrides applied to it already.
       let spec = npa(`${edge.name}@${edge.rawSpec}`)
       if (spec.type === 'alias') {
         spec = spec.subSpec
