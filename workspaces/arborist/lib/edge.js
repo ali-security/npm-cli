@@ -263,7 +263,6 @@ class Edge {
         } else {
           this.#error = 'MISSING'
         }
-      } else if (this.peer && this.#from === this.#to.parent && !this.#from.isTop) {
       } else if (this.peer && this.#from === this.#to.parent && !this.#from?.isTop) {
         this.#error = 'PEER LOCAL'
       } else if (!this.satisfiedBy(this.#to)) {
@@ -289,7 +288,6 @@ class Edge {
     let needToUpdateOverrideSet = false
     let newOverrideSet
     let oldOverrideSet
-    if (this.#from.overrides) {
     if (this.#from?.overrides) {
       newOverrideSet = this.#from.overrides.getEdgeRule(this)
       if (newOverrideSet && !newOverrideSet.isEqual(this.overrides)) {
@@ -302,7 +300,6 @@ class Edge {
     } else {
       delete this.overrides
     }
-    const newTo = this.#from.resolve(this.#name)
     const newTo = this.#from?.resolve(this.#name)
     if (newTo !== this.#to) {
       if (this.#to) {
@@ -328,7 +325,6 @@ class Edge {
     if (this.#to) {
       this.#to.deleteEdgeIn(this)
     }
-    this.#from.edgesOut.delete(this.#name)
     this.#from?.edgesOut.delete(this.#name)
     this.#to = null
     this.#error = 'DETACHED'
