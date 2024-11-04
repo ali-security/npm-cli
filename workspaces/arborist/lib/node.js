@@ -65,6 +65,8 @@ const CaseInsensitiveMap = require('./case-insensitive-map.js')
 
 const querySelectorAll = require('./query-selector-all.js')
 
+const log = require('proc-log')
+
 class Node {
   #global
   #meta
@@ -1390,7 +1392,7 @@ class Node {
         return first
       }
     }
-    console.log('Conflicting override sets')
+    log.silly('Conflicting override sets', this, first, second)
   }
 
   updateOverridesEdgeInRemoved (otherOverrideSet) {
@@ -1450,6 +1452,7 @@ class Node {
       return false
     }
     // This is an error condition. We can only get here if the new override set is in conflict with the existing.
+    throw Object.assign(new Error(`Conflicting override requirements for node ${this.name}`), { code: 'EOVERRIDE' })
   }
 
   deleteEdgeIn (edge) {
