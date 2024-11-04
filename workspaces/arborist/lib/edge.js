@@ -112,7 +112,31 @@ class Edge {
     if (node.hasShrinkwrap || node.inShrinkwrap || node.inBundle) {
       return depValid(node, this.rawSpec, this.#accept, this.#from)
     }
-    return depValid(node, this.spec, this.#accept, this.#from)
+
+    // If there's no override we just use the spec.
+    if (!this.overridden) {
+      return depValid(node, this.spec, this.#accept, this.#from)
+    }
+    // There's some override. If the target node satisfies the overriding spec
+    // then it's okay.
+    if (depValid(node, this.spec, this.#accept, this.#from)) {
+      return true
+    }
+    // If it doesn't, then it should at least satisfy the original spec.
+    if (!depValid(node, this.rawSpec, this.#accept, this.#from)) {
+      return false
+    }
+    // It satisfies the original spec, not the overriding spec. We need to make
+    // sure it doesn't use the overridden spec.
+    // For example:
+    //   we might have an ^8.0.0 rawSpec, and an override that makes
+    //   keySpec=8.23.0 and the override value spec=9.0.0.
+    //   If the node is 9.0.0, then it's okay because it's consistent with spec.
+    //   If the node is 8.24.0, then it's okay because it's consistent with the rawSpec.
+    //   If the node is 8.23.0, then it's not okay because even though it's consistent
+    //   with the rawSpec, it's also consistent with the keySpec.
+    //   So we're looking for ^8.0.0 or 9.0.0 and not 8.23.0.
+    return !depValid(node, this.overrides.keySpec, this.#accept, this.#from)
   }
 
   // return the edge data, and an explanation of how that edge came to be here

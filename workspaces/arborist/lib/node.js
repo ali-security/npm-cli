@@ -358,7 +358,7 @@ class Node {
     // versions. To make sure this package was actually overridden, we check whether any edge going in
     // had the rule applied to it, in which case its overrides set is different than its source node.
     for (const edge of this.edgesIn) {
-      if (this.overrides.isEqual(edge.overrides)) {
+      if (edge.overrides && edge.overrides.name === this.name && edge.overrides.value === this.version) {
         if (!edge.overrides.isEqual(edge.from.overrides)) {
           return true
         }
