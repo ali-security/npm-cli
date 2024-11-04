@@ -1106,8 +1106,13 @@ class Node {
       return false
     }
 
-    // if we prefer dedupe, or if the version is greater/equal, take the other
-    if (preferDedupe || semver.gte(other.version, this.version)) {
+    // if we prefer dedupe, or if the version is equal, take the other
+    if (preferDedupe || semver.eq(other.version, this.version)) {
+      return true
+    }
+
+    // if our current version isn't the result of an override, then prefer to take the greater version
+    if (!this.overridden && semver.gt(other.version, this.version)) {
       return true
     }
 
