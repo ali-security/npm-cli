@@ -204,7 +204,7 @@ class Edge {
   get spec () {
     if (this.overrides?.value && this.overrides.value !== '*' && this.overrides.name === this.#name) {
       // If this edge has the same overrides field as the source, then we're not applying an override for this edge.
-      if (this.overrides === this.#from.overrides) {
+      if (this.overrides === this.#from?.overrides) {
         return this.#spec
       }
 
@@ -212,9 +212,9 @@ class Edge {
         const ref = this.overrides.value.slice(1)
         // we may be a virtual root, if we are we want to resolve reference overrides
         // from the real root, not the virtual one
-        const pkg = this.#from.sourceReference
-          ? this.#from.sourceReference.root.package
-          : this.#from.root.package
+        const pkg = this.#from?.sourceReference
+          ? this.#from?.sourceReference.root.package
+          : this.#from?.root?.package
         if (pkg.devDependencies?.[ref]) {
           return pkg.devDependencies[ref]
         }
@@ -264,6 +264,7 @@ class Edge {
           this.#error = 'MISSING'
         }
       } else if (this.peer && this.#from === this.#to.parent && !this.#from.isTop) {
+      } else if (this.peer && this.#from === this.#to.parent && !this.#from?.isTop) {
         this.#error = 'PEER LOCAL'
       } else if (!this.satisfiedBy(this.#to)) {
         this.#error = 'INVALID'
@@ -289,6 +290,7 @@ class Edge {
     let newOverrideSet
     let oldOverrideSet
     if (this.#from.overrides) {
+    if (this.#from?.overrides) {
       newOverrideSet = this.#from.overrides.getEdgeRule(this)
       if (newOverrideSet && !newOverrideSet.isEqual(this.overrides)) {
         // If there's a new different override set we need to propagate it to the nodes.
@@ -301,6 +303,7 @@ class Edge {
       delete this.overrides
     }
     const newTo = this.#from.resolve(this.#name)
+    const newTo = this.#from?.resolve(this.#name)
     if (newTo !== this.#to) {
       if (this.#to) {
         this.#to.deleteEdgeIn(this)
@@ -326,6 +329,7 @@ class Edge {
       this.#to.deleteEdgeIn(this)
     }
     this.#from.edgesOut.delete(this.#name)
+    this.#from?.edgesOut.delete(this.#name)
     this.#to = null
     this.#error = 'DETACHED'
     this.#from = null

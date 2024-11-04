@@ -1378,7 +1378,7 @@ class Node {
 
   recalculateOutEdgesOverrides () {
     // For each edge out propogate the new overrides through.
-    for (const [, edge] of this.edgesOut) {
+    for (const edge of this.edgesOut.values()) {
       edge.reload(true)
       if (edge.to) {
         edge.to.updateOverridesEdgeInAdded(edge.overrides)
@@ -1386,7 +1386,7 @@ class Node {
     }
   }
 
-  findSpecificOverrideSet (first, second) {
+  static findSpecificOverrideSet (first, second) {
     for (let overrideSet = second; overrideSet; overrideSet = overrideSet.parent) {
       if (overrideSet.isEqual(first)) {
         return second
