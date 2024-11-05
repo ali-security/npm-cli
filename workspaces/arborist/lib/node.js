@@ -1408,7 +1408,7 @@ class Node {
     let newOverrideSet
     for (const edge of this.edgesIn) {
       if (newOverrideSet && edge.overrides) {
-        newOverrideSet = this.findSpecificOverrideSet(edge.overrides, newOverrideSet)
+        newOverrideSet = Node.findSpecificOverrideSet(edge.overrides, newOverrideSet)
       } else {
         newOverrideSet = edge.overrides
       }
@@ -1447,7 +1447,7 @@ class Node {
     if (this.overrides.isEqual(otherOverrideSet)) {
       return false
     }
-    const newOverrideSet = this.findSpecificOverrideSet(this.overrides, otherOverrideSet)
+    const newOverrideSet = Node.findSpecificOverrideSet(this.overrides, otherOverrideSet)
     if (newOverrideSet) {
       if (!this.overrides.isEqual(newOverrideSet)) {
         this.overrides = newOverrideSet
