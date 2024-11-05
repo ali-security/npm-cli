@@ -114,7 +114,7 @@ class Edge {
     }
 
     // If there's no override we just use the spec.
-    if (!this.overridden) {
+    if (!this.overrides) {
       return depValid(node, this.spec, this.#accept, this.#from)
     }
     // There's some override. If the target node satisfies the overriding spec
