@@ -1397,7 +1397,7 @@ class Node {
         return first
       }
     }
-    log.silly('Conflicting override sets', this, first, second)
+    log.silly('Conflicting override sets', first, second)
   }
 
   static doOverrideSetsConflict (first, second) {
