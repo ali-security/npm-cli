@@ -1400,6 +1400,10 @@ class Node {
     log.silly('Conflicting override sets', this, first, second)
   }
 
+  static doOverrideSetsConflict (first, second) {
+    return (this.findSpecificOverrideSet(first, second) === undefined)
+  }
+
   updateOverridesEdgeInRemoved (otherOverrideSet) {
     // If this edge's overrides isn't equal to this node's overrides, then removing it won't change newOverrideSet later.
     if (!this.overrides || !this.overrides.isEqual(otherOverrideSet)) {
@@ -1457,7 +1461,7 @@ class Node {
       return false
     }
     // This is an error condition. We can only get here if the new override set is in conflict with the existing.
-    throw Object.assign(new Error(`Conflicting override requirements for node ${this.name}`), { code: 'EOVERRIDE' })
+    log.silly('Conflicting override sets', this.name)
   }
 
   deleteEdgeIn (edge) {

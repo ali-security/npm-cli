@@ -267,7 +267,7 @@ class Edge {
         this.#error = 'PEER LOCAL'
       } else if (!this.satisfiedBy(this.#to)) {
         this.#error = 'INVALID'
-      } else if (this.overrides && this.#to.edgesOut.size && !this.#to.constructor.findSpecificOverrideSet(this.overrides, this.#to.overrides)) {
+      } else if (this.overrides && this.#to.edgesOut.size && this.#to.constructor.doOverrideSetsConflict(this.overrides, this.#to.overrides)) {
         // Any inconsistency between the edge's override set and the target's override set is potentially problematic.
         // But we only say the edge is in error if the override sets are plainly conflicting.
         // Note that if the target doesn't have any dependencies of their own, then this inconsistency is irrelevant.
