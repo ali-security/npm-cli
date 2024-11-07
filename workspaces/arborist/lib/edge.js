@@ -103,7 +103,6 @@ class Edge {
   }
 
   satisfiedBy (node) {
-    if (node.name !== this.#name) {
     if (node.name !== this.#name || !this.#from) {
       return false
     }
@@ -115,7 +114,6 @@ class Edge {
     }
 
     // If there's no override we just use the spec.
-    if (!this.overrides) {
     if (!this.overrides?.keySpec) {
       return depValid(node, this.spec, this.#accept, this.#from)
     }
