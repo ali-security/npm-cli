@@ -1,5 +1,6 @@
 const npa = require('npm-package-arg')
 const semver = require('semver')
+const log = require('proc-log')
 
 class OverrideSet {
   constructor ({ overrides, key, parent }) {
@@ -179,6 +180,24 @@ class OverrideSet {
     }
 
     return ruleset
+  }
+
+  static findSpecificOverrideSet (first, second) {
+    for (let overrideSet = second; overrideSet; overrideSet = overrideSet.parent) {
+      if (overrideSet.isEqual(first)) {
+        return second
+      }
+    }
+    for (let overrideSet = first; overrideSet; overrideSet = overrideSet.parent) {
+      if (overrideSet.isEqual(second)) {
+        return first
+      }
+    }
+    log.silly('Conflicting override sets', first, second)
+  }
+  
+  static doOverrideSetsConflict (first, second) {
+    return (this.findSpecificOverrideSet(first, second) === undefined)
   }
 }
 
