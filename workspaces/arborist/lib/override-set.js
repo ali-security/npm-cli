@@ -200,8 +200,7 @@ class OverrideSet {
   
   static doOverrideSetsConflict (first, second) {
     // If override sets contain one another then we can try to use the more specific one.
-    // This is imperfect, since we may lose some of the context of the less specific override
-    // set. But the more specific override set is more important to propagate, so we go with it.
+    // If neither one is more specific, then we consider them to be in conflict.
     return (this.findSpecificOverrideSet(first, second) === undefined)
   }
 }
